@@ -11,4 +11,4 @@ Virtual fish developed with deep learning technique
 <img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_2.jpg" width="600">
 
 ## Virtual Fish Trend Compared to Observed Fish
-<img src="https://github.com/jundongq/VirtualFish/blob/master/VirtualFishTrajectories_RealFishTrajectories_1sd.png" width="1000">
+<img src="https://github.com/jundongq/VirtualFish/blob/master/VirtualFishTrajectories_RealFishTrajectories_1sd.png" width="1200">
