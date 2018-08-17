@@ -1,7 +1,5 @@
 """
-This script is to do a time averaged over 4 time steps on vel, vorticity, and tke, 05/08/2018
-Add swirl and strain rate into the features, 05/24/2018
-Add acceleration of u and v into features, 06/01/2018
+This script is to extract hydrodynamic environment experienced by fish
 """
 
 import numpy as np 
@@ -231,18 +229,3 @@ for i, img_dir in enumerate(data_lists):
 	run(img_dir, dist_threshold, avg_steps)
 
 
-
-
-
-
-'''
-# only the trajectory "11_09_2017/FishBehavior_11_09_5" is reserved for virtual fish environment
-data_list = '11_02_2017/FishBehavior_11_02_6'
-
-dist_threshold = 10 # mm
-avg_steps = 4 # average over 4 steps, to make 20Hz down to 5Hz
-
-
-img_dir = data_list.strip('\'')
-run(img_dir, dist_threshold, avg_steps)
-'''
