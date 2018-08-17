@@ -91,10 +91,6 @@ def read_split(data):
 	a_train, a_test, y_train, y_test = train_test_split(a, y, test_size = 0.2, stratify=y, random_state = random_seed)
 
 	y_train = to_categorical(y_train)
-	# y_test  = to_categorical(y_test)
-	# print np.shape(X_train)
-	# print np.shape(s_train)
-	# print np.shape(X_test)
 
 	return X_train, X_test, s_train, s_test, a_train, a_test, y_train, y_test
 
