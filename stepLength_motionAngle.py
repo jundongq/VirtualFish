@@ -53,33 +53,3 @@ def trainKDEs(all_files_5Hz_file_path):
 	kde_currentStepLength_3 = densityEstimation(all_stepLengths_motionAngles_groups.get_group(3)['currentStepLength'].values)
 
 	return kde_fishDecisionAngles_0, kde_fishDecisionAngles_1, kde_fishDecisionAngles_2, kde_fishDecisionAngles_3, kde_currentStepLength_0, kde_currentStepLength_1, kde_currentStepLength_2, kde_currentStepLength_3
-	# ### use estimated kde to sample fish decision angle and step length.
-	# random_state = 1596
-
-
-
-
-
-'''
-### reconstruct 11_02_6 trajectory, with every known decision.
-trajectory_csv = pd.read_csv('/Volumes/My Passport/Fish Passage Experiments Data/11_02_2017/FishBehavior_11_02_6/FishBehavior_11_02_6_fishDecisions_10_mm_5Hz.csv')
-polygons_txt = np.loadtxt('/Volumes/My Passport/Fish Passage Experiments Data/11_02_2017/FishBehavior_11_02_6/polygons.txt')
-fishCoordinates = np.asarray(zip(trajectory_csv['Current_location_cx_mm'].values, trajectory_csv['Current_location_cy_mm'].values))
-ratio = 1.2195
-
-def blocks_mask(block_vortices, nb_polygons):
-	
-	polys_ = block_vortices.copy()*ratio
-	polys_ = polys_.astype(int)
-	for i in range(nb_polygons):
-		for j in range(4):
-			polys_[i][j][1] = (block_vortices[i][j][1])
-
-	mask = np.ones((1200, 2400), dtype=np.int8) # (1070,1914)*ratio = (1305,  2335)
-	for i in polys_.tolist():
-		cv2.fillConvexPoly(mask, np.array(i), 0)
-	return mask
-
-
-
-
