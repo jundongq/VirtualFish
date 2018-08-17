@@ -96,7 +96,6 @@ def sensoryInputScaler(trainData):
 	speed_scaler = scaler.fit(s_train)
 	decisionAngle_scaler = scaler.fit(a_train)
 
-
 	return u_v_scaler, vor_scaler, tke_scaler, swirl_scaler, strainRate_scaler, speed_scaler, decisionAngle_scaler
 
 
@@ -130,7 +129,6 @@ def Reconstruct_trajectory(motionAngles, stepLengths, p0, decision, random_seed)
 	decision: action that fish chose at current position
 	motionAngles: a dictionary containing all esitmated density distribution functions of motion angles
 	stepLengths: a dictionary containing all esitmated density distribution functions of step lengths
-
 
 	Ouput::
 
