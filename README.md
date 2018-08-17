@@ -5,5 +5,5 @@ Virtual fish developed with deep learning technique
 2. Trained virtual fish is the folder
 
 ## Virtual Fish Concept
-<img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_1.jpg" width="200">
+<img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_1.jpg" width="600">
 
