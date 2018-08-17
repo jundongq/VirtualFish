@@ -196,14 +196,7 @@ def virtualFish_Action(virtualFish, feature_u, feature_v, feature_vor, feature_t
 	feature_speed_angle = np.concatenate((previousSpeed_feature, previousMotionAngle_feature), axis=1)
 
 	scaled_Inputs = [feature_u_v, vor_feature, tke_feature, swirl_feature, strainRate_feature, feature_speed_angle]
-	# print '&&&&&&&&&&&&&&&&&&&&&&&&&&&&'
-	# print np.shape(feature_u_v)
-	# print np.shape(vor_feature)
-	# print np.shape(tke_feature)
-	# print np.shape(swirl_feature)
-	# print np.shape(strainRate_feature)
-	# print np.shape(feature_speed_angle)
-	# print '&&&&&&&&&&&&&&&&&&&&&&&&&&&&'
+
 	virtualFish_pred_prop = virtualFish.predict(scaled_Inputs) 
 	action = np.argmax(virtualFish_pred_prop, axis=1)[0]
 	return action, virtualFish_pred_prop
@@ -227,13 +220,6 @@ def run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeight
 		an environment sequence, in format of (n, 6, 88, 157), which has n time steps, each one has 6 attributes in form of 88 rows and 157 cols.
 		"""
 		environmentSequence = dataset['envrionmentSet'].value
-
-	# step 0: initial location and action for virtual fish, use kde to draw samples to determine initial speed and motion angle
-	# x_0, y_0 = 1854.3, 406.5 # to be corrected
-	# action_0 = 1 # to be corrected
-	# 	# - random sample fish speed and motion angle according to the distribution respectively.
-	# fishSpeed = stepLengths[str(action_0)].sample(1)
-	# fishMotionAngle = motionAngles[str(action_0)].sample(1)
 	
 	# step 1: 'initialSpeed' and 'initialMotionAngle' take fish to next position, in mm
 	new_location, fishSpeed, fishMotionAngle = Reconstruct_trajectory(motionAngles, stepLengths, [x_0, y_0], action_0, random_seed)
@@ -243,7 +229,7 @@ def run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeight
 	Pts_reconstruct = [[x_0, y_0]]
 
 	# start from the 2nd position.
-	for i in range(1, len(environmentSequence))[:80]:
+	for i in range(1, len(environmentSequence)):
 		print i
 		# step 2: use fish position to locate its sensory inputs, and scale them
 			# - convert mm into grid coordinates, and translate them by patch_width/2 and patch_height/2, to compensate zero-padding. 
@@ -290,52 +276,52 @@ def run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeight
 		fishMotionAngle = currentFishMotionAngle
 		print new_location_x, new_location_y
 		Pts_reconstruct.append([new_location_x, new_location_y])
-	# print Pts_reconstruct
 
 	# wirte the list locations into txt
 	np.savetxt(os.path.join(DIR_VIRTUALFISH_TRIAL, 'VirtualFishTrajectory_{}.txt'.format(k)), np.asarray(Pts_reconstruct))
 	np.savetxt(os.path.join(DIR_VIRTUALFISH_TRIAL, 'VirtualFishActions_{}.txt'.format(k)), np.asarray(Predicted_actions))
 	print "Done!"
 
+def main():
+	# global variables
+	delta_x = delta_y = 15
+	patch_width = 14
+	patch_height = 10
+	DATA_DIR = '/Research/Fish Passage Project/Fish Passage Experiments Data/'
+	trainData = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/preprocessedData_patch_10h_14w_6features_raw.h5')
+	virtualFishModelStructure = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation.json')
+	virtualFishModelWeights = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation_weights.h5')
+	data_path_allFishDecisions = os.path.join(DATA_DIR,'fishDecisionFiles_10mm_5Hz/')
+	u_v_scaler, vor_scaler, tke_scaler, swirl_scaler, strainRate_scaler, speed_scaler, decisionAngle_scaler = sensoryInputScaler(trainData)
 
-# global variables
-delta_x = delta_y = 15
-patch_width = 14
-patch_height = 10
-DATA_DIR = '/Research/Fish Passage Project/Fish Passage Experiments Data/'
-trainData = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/preprocessedData_patch_10h_14w_6features_raw.h5')
-virtualFishModelStructure = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation.json')
-virtualFishModelWeights = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation_weights.h5')
-data_path_allFishDecisions = os.path.join(DATA_DIR,'fishDecisionFiles_10mm_5Hz/')
-u_v_scaler, vor_scaler, tke_scaler, swirl_scaler, strainRate_scaler, speed_scaler, decisionAngle_scaler = sensoryInputScaler(trainData)
+	# run one trial multiple times
+	# Batch Processing, input the directory of all 52 video clips
+	meta_clips = pd.read_csv('/Research/Fish Passage Project/Fish Passage Experiments Data/clips_list_threshold.csv')
+	data_lists = meta_clips['video_clip']
 
-# run one trial multiple times
-# Batch Processing, input the directory of all 52 video clips
-meta_clips = pd.read_csv('/Research/Fish Passage Project/Fish Passage Experiments Data/clips_list_threshold.csv')
-data_lists = meta_clips['video_clip']
-
-for img_dir in data_lists[51:52]:
-	trial_name = img_dir.split('/')[1][13:]
-	print trial_name
-
-
-	# make a new directory to store all trials of virtual fish trajectories
-	DIR_VIRTUALFISH = 'VirtualFishTrajectories'
-
-	DIR_VIRTUALFISH_TRIAL = os.path.join(DIR_VIRTUALFISH, trial_name)
-	if not os.path.exists(DIR_VIRTUALFISH_TRIAL):
-		os.mkdir(DIR_VIRTUALFISH_TRIAL)
-
-	decisionFile = pd.read_csv(os.path.join(data_path_allFishDecisions, 'FishBehavior_{}_fishDecisions_10_mm_5Hz.csv'.format(trial_name)))
-	print len(decisionFile)
-	x_0 = decisionFile['Current_location_cx_mm'][0]
-	y_0 = decisionFile['Current_location_cy_mm'][0]
-	action_0 = decisionFile['currentDecisions'][0]
-	fish_testEnvironment = 'environmentAllTrjectories/environment_FishBehavior_{}.h5'.format(trial_name)
-
-	# random_seeds = [10, 158, 888, 6850, 6521, 9491, 85244,2415267]
-	random_seeds = [888, 6850, 6521, 9491, 85244,2415267]
-	for k, rs in enumerate(random_seeds):
-		run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeights, data_path_allFishDecisions, fish_testEnvironment, rs)
+	for img_dir in data_lists[51:52]:
+		trial_name = img_dir.split('/')[1][13:]
+		print trial_name
 
 
+		# make a new directory to store all trials of virtual fish trajectories
+		DIR_VIRTUALFISH = 'VirtualFishTrajectories'
+
+		DIR_VIRTUALFISH_TRIAL = os.path.join(DIR_VIRTUALFISH, trial_name)
+		if not os.path.exists(DIR_VIRTUALFISH_TRIAL):
+			os.mkdir(DIR_VIRTUALFISH_TRIAL)
+
+		decisionFile = pd.read_csv(os.path.join(data_path_allFishDecisions, 'FishBehavior_{}_fishDecisions_10_mm_5Hz.csv'.format(trial_name)))
+		print len(decisionFile)
+		x_0 = decisionFile['Current_location_cx_mm'][0]
+		y_0 = decisionFile['Current_location_cy_mm'][0]
+		action_0 = decisionFile['currentDecisions'][0]
+		fish_testEnvironment = 'environmentAllTrjectories/environment_FishBehavior_{}.h5'.format(trial_name)
+
+		# random_seeds = [10, 158, 888, 6850, 6521, 9491, 85244,2415267]
+		random_seeds = [888, 6850, 6521, 9491, 85244,2415267]
+		for k, rs in enumerate(random_seeds):
+			run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeights, data_path_allFishDecisions, fish_testEnvironment, rs)
+
+if __name__ = '__main__':
+	main()
