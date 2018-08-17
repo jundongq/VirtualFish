@@ -8,5 +8,5 @@ Virtual fish developed with deep learning technique
 <img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_1.jpg" width="600">
 
 ## Virtual Fish Model Architecture
-<img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_s.jpg" width="600">
+<img src="https://github.com/jundongq/VirtualFish/blob/master/TrainedModel/VirtualFish_2.jpg" width="600">
 
