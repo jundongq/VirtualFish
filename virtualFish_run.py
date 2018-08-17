@@ -282,46 +282,42 @@ def run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeight
 	np.savetxt(os.path.join(DIR_VIRTUALFISH_TRIAL, 'VirtualFishActions_{}.txt'.format(k)), np.asarray(Predicted_actions))
 	print "Done!"
 
-def main():
-	# global variables
-	delta_x = delta_y = 15
-	patch_width = 14
-	patch_height = 10
-	DATA_DIR = '/Research/Fish Passage Project/Fish Passage Experiments Data/'
-	trainData = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/preprocessedData_patch_10h_14w_6features_raw.h5')
-	virtualFishModelStructure = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation.json')
-	virtualFishModelWeights = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation_weights.h5')
-	data_path_allFishDecisions = os.path.join(DATA_DIR,'fishDecisionFiles_10mm_5Hz/')
-	u_v_scaler, vor_scaler, tke_scaler, swirl_scaler, strainRate_scaler, speed_scaler, decisionAngle_scaler = sensoryInputScaler(trainData)
+### run virtual fish in virtual environment ###
+# global variables
+delta_x = delta_y = 15
+patch_width = 14
+patch_height = 10
+DATA_DIR = '/PATH TO PROJECT FILES/'
+trainData = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/preprocessedData_patch_10h_14w_6features_raw.h5')
+virtualFishModelStructure = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation.json')
+virtualFishModelWeights = os.path.join(DATA_DIR,'PreprocessedData_10mm_patch_10h_14w_raw_6features/xcepModelWithSpeed_ModelResults/0.6037_0.5792/incepModel_withSpeed_Dilation_weights.h5')
+data_path_allFishDecisions = os.path.join(DATA_DIR,'fishDecisionFiles_10mm_5Hz/')
+u_v_scaler, vor_scaler, tke_scaler, swirl_scaler, strainRate_scaler, speed_scaler, decisionAngle_scaler = sensoryInputScaler(trainData)
 
-	# run one trial multiple times
-	# Batch Processing, input the directory of all 52 video clips
-	meta_clips = pd.read_csv('/Research/Fish Passage Project/Fish Passage Experiments Data/clips_list_threshold.csv')
-	data_lists = meta_clips['video_clip']
+# run one trial multiple times
+# Batch Processing, input the directory of all 52 video clips
+meta_clips = pd.read_csv('/Research/Fish Passage Project/Fish Passage Experiments Data/clips_list_threshold.csv')
+data_lists = meta_clips['video_clip']
 
-	for img_dir in data_lists[51:52]:
-		trial_name = img_dir.split('/')[1][13:]
-		print trial_name
+for img_dir in data_lists:
+	trial_name = img_dir.split('/')[1][13:]
+	print trial_name
 
+	# make a new directory to store all trials of virtual fish trajectories
+	DIR_VIRTUALFISH = 'VirtualFishTrajectories'
 
-		# make a new directory to store all trials of virtual fish trajectories
-		DIR_VIRTUALFISH = 'VirtualFishTrajectories'
+	DIR_VIRTUALFISH_TRIAL = os.path.join(DIR_VIRTUALFISH, trial_name)
+	if not os.path.exists(DIR_VIRTUALFISH_TRIAL):
+		os.mkdir(DIR_VIRTUALFISH_TRIAL)
 
-		DIR_VIRTUALFISH_TRIAL = os.path.join(DIR_VIRTUALFISH, trial_name)
-		if not os.path.exists(DIR_VIRTUALFISH_TRIAL):
-			os.mkdir(DIR_VIRTUALFISH_TRIAL)
+	decisionFile = pd.read_csv(os.path.join(data_path_allFishDecisions, 'FishBehavior_{}_fishDecisions_10_mm_5Hz.csv'.format(trial_name)))
+	print len(decisionFile)
+	x_0 = decisionFile['Current_location_cx_mm'][0]
+	y_0 = decisionFile['Current_location_cy_mm'][0]
+	action_0 = decisionFile['currentDecisions'][0]
+	fish_testEnvironment = 'environmentAllTrjectories/environment_FishBehavior_{}.h5'.format(trial_name)
 
-		decisionFile = pd.read_csv(os.path.join(data_path_allFishDecisions, 'FishBehavior_{}_fishDecisions_10_mm_5Hz.csv'.format(trial_name)))
-		print len(decisionFile)
-		x_0 = decisionFile['Current_location_cx_mm'][0]
-		y_0 = decisionFile['Current_location_cy_mm'][0]
-		action_0 = decisionFile['currentDecisions'][0]
-		fish_testEnvironment = 'environmentAllTrjectories/environment_FishBehavior_{}.h5'.format(trial_name)
+	random_seeds = [888, 6850, 6521, 9491, 85244,2415267]
+	for k, rs in enumerate(random_seeds):
+		run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeights, data_path_allFishDecisions, fish_testEnvironment, rs)
 
-		# random_seeds = [10, 158, 888, 6850, 6521, 9491, 85244,2415267]
-		random_seeds = [888, 6850, 6521, 9491, 85244,2415267]
-		for k, rs in enumerate(random_seeds):
-			run(k, x_0, y_0, action_0, virtualFishModelStructure, virtualFishModelWeights, data_path_allFishDecisions, fish_testEnvironment, rs)
-
-if __name__ = '__main__':
-	main()
