@@ -1,5 +1,5 @@
 """
-Build a Xception model to learn and predict fish decisions based on its surrounding features (u, v, vor, tke).
+Build a deep learning model to learn and predict fish decisions based on its surrounding features (u, v, vor, tke, ).
 This model use 1 inception module
 Add speed as input 
 """
@@ -17,7 +17,6 @@ from sklearn.preprocessing.data import QuantileTransformer
 
 from sklearn.metrics import f1_score, accuracy_score, classification_report, confusion_matrix, make_scorer
 from sklearn.model_selection import GridSearchCV, train_test_split
-
 
 from keras.wrappers.scikit_learn import KerasClassifier
 
@@ -99,29 +98,6 @@ def read_split(data):
 
 	return X_train, X_test, s_train, s_test, a_train, a_test, y_train, y_test
 
-# X, s, y = read_split(preprocessedData)
-# print np.shape(X)
-# print np.shape(s)
-# print np.shape(y)
-
-
-def generate_random_data():
-	"""
-	generate random input to check out the network
-	"""
-	X = np.random.randn(2000, 4, 10, 14)
-	s = np.random.randn(2000, 1)
-	from random import shuffle
-	y = range(4)*500
-	shuffle(y)
-
-	random_seed = 6789
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, stratify=y, random_state = random_seed)
-	s_train, s_test, y_train, y_test = train_test_split(s, y, test_size = 0.2, stratify=y, random_state = random_seed)
-	y_train = to_categorical(y_train)
-
-	return X_train, X_test, s_train, s_test, y_train, y_test
-
 # parameter settings
 nb_classes = 4
 
@@ -142,7 +118,6 @@ def incepModel(L1_lambda, L2_lambda):
 	input_data_4 = Input(shape = input_shape_4)
 	input_data_5 = Input(shape = input_shape_5)
 	input_data_6 = Input(shape = input_shape_6)
-
 
 
 	### tower 1, u, v
@@ -354,14 +329,6 @@ def incepModel(L1_lambda, L2_lambda):
 					kernel_initializer = 'glorot_normal',
 					kernel_regularizer = regularizers.l1_l2(L1_lambda, L2_lambda),
 					name = 'tower_6_1')(input_data_6)
-	# tower_6 = Dropout(0.2)(tower_6)
-	# tower_6 = Dense(64,
-	# 				activation = 'relu',
-	# 				kernel_initializer = 'glorot_normal',
-	# 				kernel_regularizer = regularizers.l1_l2(L1_lambda, L2_lambda),
-	# 				name = 'tower_6_2')(tower_6)
-
-	# incepOutput_1 = keras.layers.concatenate([tower_1, tower_2, tower_3, tower_4], axis=1)
 	
 
 	output = keras.layers.concatenate([tower_1, tower_2, tower_3, tower_4, tower_5], axis=1)
@@ -389,7 +356,7 @@ def incepModel(L1_lambda, L2_lambda):
 					kernel_initializer = 'glorot_normal',
 					kernel_regularizer = regularizers.l1_l2(L1_lambda, L2_lambda),
 					name = 'tower_output_2')(output)
-	# output = Dropout(0.5)(output)
+
 	out    = Dense(nb_classes, activation = 'softmax', kernel_initializer = 'glorot_normal', name='Output')(output)
 	model  = Model(inputs = [input_data_1,input_data_2,input_data_3, input_data_4, input_data_5, input_data_6], outputs = out)
 
@@ -463,7 +430,7 @@ tensorboard  = TensorBoard(log_dir = tensorboard_log_dir, histogram_freq = 1,
 
 callbacks_list = [checkpointer, reduce_lr, earlystopping, tensorboard]
 
-# history = model.fit([input_1,input_2, input_3, input_4, input_5, input_6], y_train, epochs=1000, batch_size=16, validation_split=0.2, callbacks=callbacks_list)
+history = model.fit([input_1,input_2, input_3, input_4, input_5, input_6], y_train, epochs=1000, batch_size=16, validation_split=0.2, callbacks=callbacks_list)
 t1 = time.time()
 t = t1-t0
 print 'The incepModel took %.2f mins.' %(round(t/60., 2))
