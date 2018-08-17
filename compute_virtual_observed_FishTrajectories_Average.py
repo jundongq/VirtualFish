@@ -119,15 +119,18 @@ def run(DATA_DIR, step):
 	x_avg, y_avg, y_coordinates_std = avg_routes_over_x(avg_routes, 10)
 
 	# wirte the list locations into txt
-	np.savetxt('averageofVirtualFishTrajectory.txt', np.asarray([x_avg, y_avg, y_coordinates_std]))
+	np.savetxt('averageof_{}.txt'.format(DATA_DIR), np.asarray([x_avg, y_avg, y_coordinates_std]))
 	print 'Done!'
 
 ### Run
 ## virtual fish trajectories
-DATA_DIR = 'VirtualFishTrajectories/'
+DATA_DIR_VIRTUAL = 'VirtualFishTrajectories/'
+## observed fish trajectories
+DATA_DIR_OBSERVED = 'ObservedFishTrajectories/'
 step = 10
-run(DATA_DIR, step)
 
+for DATA_DIR in [DATA_DIR_VIRTUAL, DATA_DIR_OBSERVED):
+	run(DATA_DIR, step)
 
 
 
