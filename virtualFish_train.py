@@ -1,8 +1,7 @@
 """
 Build a deep learning model to learn and predict fish decisions based on its surrounding features (u, v, vor, tke, swirl, strain rate).
-Add speed as input 
+Add prior speed and motion angle as input 
 """
-
 
 import h5py
 import time
