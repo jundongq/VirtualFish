@@ -1,6 +1,5 @@
 """
-Build a deep learning model to learn and predict fish decisions based on its surrounding features (u, v, vor, tke, ).
-This model use 1 inception module
+Build a deep learning model to learn and predict fish decisions based on its surrounding features (u, v, vor, tke, swirl, strain rate).
 Add speed as input 
 """
 
